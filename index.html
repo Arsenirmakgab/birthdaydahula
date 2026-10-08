@@ -5,11 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>3D Галерея</title>
     <style>
-        body {
+        * {
+            box-sizing: border-box;
             margin: 0;
+            padding: 0;
+        }
+
+        body {
             overflow: hidden;
-            background-color: #0d0d11;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #0a0a0f;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            color: #ffffff;
         }
 
         #canvas-container {
@@ -22,112 +28,118 @@
             top: 20px;
             left: 50%;
             transform: translateX(-50%);
-            color: #ffffff;
             text-align: center;
             pointer-events: none;
             z-index: 10;
         }
 
         .ui-overlay h1 {
-            margin: 0;
-            font-size: 2.5rem;
+            font-size: 2.2rem;
             letter-spacing: 2px;
-            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+            text-shadow: 0 0 12px rgba(255, 255, 255, 0.4);
         }
 
         .ui-overlay p {
-            margin-top: 5px;
-            font-size: 1rem;
-            opacity: 0.8;
+            margin-top: 6px;
+            font-size: 0.95rem;
+            opacity: 0.7;
         }
     </style>
-    <!-- Подключение Three.js -->
+    <!-- Three.js CDN -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <!-- Подключение OrbitControls для управления камерой -->
+    <!-- OrbitControls для управления вращением мышью -->
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
 </head>
 <body>
 
     <div class="ui-overlay">
-        <h1>3D Галерея</h1>
-        <p>Зажмите левую кнопку мыши для вращения | Колесико для масштабирования</p>
+        <h1>3D Интерактивная Галерея</h1>
+        <p>Вращайте сцену мышью | Масштабируйте колёсиком</p>
     </div>
 
     <div id="canvas-container"></div>
 
     <script>
-        // 1. Инициализация сцены, камеры и рендерера
+        // 1. Создание сцены, камеры и рендерера
         const scene = new THREE.Scene();
-        scene.fog = new THREE.FogExp2(0x0d0d11, 0.05);
+        scene.fog = new THREE.FogExp2(0x0a0a0f, 0.04);
 
-        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-        camera.position.set(0, 0, 8);
+        const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.set(0, 1.5, 9);
 
         const renderer = new THREE.WebGLRenderer({ antialias: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.setPixelRatio(window.devicePixelRatio);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
         document.getElementById('canvas-container').appendChild(renderer.domElement);
 
-        // 2. Добавление управления камерой (OrbitControls)
+        // 2. Управление камерой (OrbitControls)
         const controls = new THREE.OrbitControls(camera, renderer.domElement);
         controls.enableDamping = true;
         controls.dampingFactor = 0.05;
+        controls.maxPolarAngle = Math.PI / 2 + 0.1; // Ограничение наклона снизу
 
         // 3. Освещение
-        const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.9);
         scene.add(ambientLight);
 
-        const pointLight = new THREE.PointLight(0x00aaff, 2, 50);
-        pointLight.position.set(0, 5, 5);
-        scene.add(pointLight);
+        const dirLight = new THREE.DirectionalLight(0xffffff, 0.5);
+        dirLight.position.set(5, 10, 7);
+        scene.add(dirLight);
 
-        // 4. Список ссылок на фотографии
-        // Замените эти ссылки на прямые URL ваших фотографий из GitHub (Raw ссылки)
+        // 4. Ссылки на ваши фотографии из GitHub (Raw ссылки)
+        // Замените эти ссылки на ваши собственного репозитория:
         const photoUrls = [
-            'https://picsum.photos/id/1015/600/800',
-            'https://picsum.photos/id/1018/600/800',
-            'https://picsum.photos/id/1025/600/800',
-            'https://picsum.photos/id/1039/600/800',
-            'https://picsum.photos/id/1050/600/800',
-            'https://picsum.photos/id/1069/600/800'
+            'https://raw.githubusercontent.com/github/explore/main/topics/javascript/javascript.png',
+            'https://raw.githubusercontent.com/github/explore/main/topics/html/html.png',
+            'https://raw.githubusercontent.com/github/explore/main/topics/css/css.png',
+            'https://raw.githubusercontent.com/github/explore/main/topics/python/python.png',
+            'https://raw.githubusercontent.com/github/explore/main/topics/git/git.png'
         ];
 
-        // 5. Создание группы для карусели с карточками
+        // 5. Группа для карточек и расстановка по кругу
         const galleryGroup = new THREE.Group();
         scene.add(galleryGroup);
 
         const textureLoader = new THREE.TextureLoader();
-        const radius = 4; // Радиус круга карусели
+        const radius = 4.5;
         const count = photoUrls.length;
 
         photoUrls.forEach((url, index) => {
-            const texture = textureLoader.load(url);
-            const geometry = new THREE.PlaneGeometry(2, 2.8);
-            const material = new THREE.MeshStandardMaterial({
-                map: texture,
-                side: THREE.DoubleSide,
-                roughness: 0.3
-            });
+            textureLoader.load(
+                url,
+                (texture) => {
+                    const geometry = new THREE.PlaneGeometry(2.2, 3);
+                    const material = new THREE.MeshStandardMaterial({
+                        map: texture,
+                        side: THREE.DoubleSide,
+                        roughness: 0.3
+                    });
 
-            const card = new THREE.Mesh(geometry, material);
+                    const card = new THREE.Mesh(geometry, material);
 
-            // Расстановка по кругу
-            const angle = (index / count) * Math.PI * 2;
-            card.position.x = Math.sin(angle) * radius;
-            card.position.z = Math.cos(angle) * radius;
-            
-            // Разворот карточки к центру
-            card.rotation.y = angle;
+                    // Позиционирование по окружности
+                    const angle = (index / count) * Math.PI * 2;
+                    card.position.x = Math.sin(angle) * radius;
+                    card.position.z = Math.cos(angle) * radius;
 
-            galleryGroup.add(card);
+                    // Разворот лицевой стороной к центру
+                    card.rotation.y = angle;
+
+                    galleryGroup.add(card);
+                },
+                undefined,
+                (err) => {
+                    console.error('Не удалось загрузить изображение:', url);
+                }
+            );
         });
 
-        // 6. Анимация
+        // 6. Анимационный цикл
         function animate() {
             requestAnimationFrame(animate);
 
-            // Плавное вращение всей карусели
-            galleryGroup.rotation.y += 0.003;
+            // Медленное автоматическое вращение галереи
+            galleryGroup.rotation.y += 0.002;
 
             controls.update();
             renderer.render(scene, camera);
@@ -135,7 +147,7 @@
 
         animate();
 
-        // 7. Обработка изменения размера окна
+        // 7. Поддержка изменения размера окна
         window.addEventListener('resize', () => {
             camera.aspect = window.innerWidth / window.innerHeight;
             camera.updateProjectionMatrix();
