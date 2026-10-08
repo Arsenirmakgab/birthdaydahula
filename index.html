@@ -1,476 +1,146 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Наша история</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-  <style>
-    :root {
-      --bg: #fff0f5;
-      --card: #ffffff;
-      --text: #2d0a1a;
-      --muted: #9b4d6a;
-      --accent: #e91e63;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Галерея</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-color: #0d0d11;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
 
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    html { scroll-behavior: smooth; }
+        #canvas-container {
+            width: 100vw;
+            height: 100vh;
+        }
 
-    body {
-      background: #fff0f5;
-      background-image: 
-        radial-gradient(ellipse at 10% 0%, rgba(233, 30, 99, 0.12) 0%, transparent 45%),
-        radial-gradient(ellipse at 90% 100%, rgba(255, 64, 129, 0.1) 0%, transparent 50%),
-        linear-gradient(180deg, #fff0f5 0%, #ffe4ec 50%, #fff0f5 100%);
-      color: var(--text);
-      font-family: 'Inter', system-ui, sans-serif;
-      overflow-x: hidden;
-      line-height: 1.5;
-    }
+        .ui-overlay {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #ffffff;
+            text-align: center;
+            pointer-events: none;
+            z-index: 10;
+        }
 
-    .hero {
-      height: 100vh;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      text-align: center;
-      position: relative;
-    }
+        .ui-overlay h1 {
+            margin: 0;
+            font-size: 2.5rem;
+            letter-spacing: 2px;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+        }
 
-    .hero h1 {
-      font-family: 'Playfair Display', serif;
-      font-size: clamp(2.8rem, 8vw, 5.5rem);
-      font-weight: 400;
-      background: linear-gradient(135deg, #c2185b 0%, #e91e63 40%, #ff4081 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      margin-bottom: 1rem;
-    }
-
-    .hero p {
-      font-size: 1.15rem;
-      color: var(--muted);
-      max-width: 420px;
-      margin-bottom: 3rem;
-    }
-
-    .scroll-hint {
-      position: absolute;
-      bottom: 40px;
-      left: 50%;
-      transform: translateX(-50%);
-      font-size: 0.85rem;
-      color: var(--accent);
-      letter-spacing: 0.15em;
-      text-transform: uppercase;
-      animation: bounce 2.2s infinite;
-      font-weight: 600;
-    }
-
-    @keyframes bounce {
-      0%, 100% { transform: translateX(-50%) translateY(0); }
-      50% { transform: translateX(-50%) translateY(10px); }
-    }
-
-    .section {
-      padding: 12vh 5vw;
-      max-width: 1200px;
-      margin: 0 auto;
-    }
-
-    .section-title {
-      font-family: 'Playfair Display', serif;
-      font-size: clamp(1.8rem, 4vw, 2.8rem);
-      margin-bottom: 3rem;
-      text-align: center;
-      color: var(--accent);
-    }
-
-    .group {
-      margin-bottom: 18vh;
-      opacity: 0.25;
-      transform: translateY(60px) scale(0.94);
-      transition: opacity 0.7s ease, transform 0.7s ease;
-    }
-
-    .group.visible {
-      opacity: 1;
-      transform: translateY(0) scale(1);
-    }
-
-    .photos {
-      display: flex;
-      gap: 1.5rem;
-      justify-content: center;
-      flex-wrap: wrap;
-      margin-bottom: 1.8rem;
-    }
-
-    .photos.one { max-width: 520px; margin-left: auto; margin-right: auto; }
-    .photos.two { max-width: 900px; margin-left: auto; margin-right: auto; }
-    .photos.three { max-width: 1100px; }
-
-    .photo-card {
-      border-radius: 20px;
-      overflow: hidden;
-      background: white;
-      box-shadow: 
-        0 12px 30px -8px rgba(194, 24, 91, 0.25),
-        0 0 0 3px rgba(233, 30, 99, 0.15);
-      transition: box-shadow 0.4s ease;
-    }
-
-    .photo-card:hover {
-      box-shadow: 
-        0 20px 40px -8px rgba(194, 24, 91, 0.35),
-        0 0 0 4px rgba(233, 30, 99, 0.35);
-    }
-
-    .photo-card img {
-      display: block;
-      width: 100%;
-      height: auto;
-      object-fit: cover;
-      aspect-ratio: 3/4;
-      transition: transform 0.6s ease;
-    }
-
-    .photos.one .photo-card { width: 100%; }
-    .photos.two .photo-card { width: calc(50% - 0.75rem); min-width: 260px; }
-    .photos.three .photo-card { width: calc(33.333% - 1rem); min-width: 220px; }
-
-    .photo-card:hover img {
-      transform: scale(1.05);
-    }
-
-    .caption {
-      text-align: center;
-      max-width: 560px;
-      margin: 0 auto;
-      font-family: 'Playfair Display', serif;
-      font-size: clamp(1.15rem, 2.5vw, 1.45rem);
-      font-style: italic;
-      color: var(--text);
-    }
-
-    .caption span {
-      display: block;
-      margin-top: 0.6rem;
-      font-family: 'Inter', sans-serif;
-      font-size: 0.85rem;
-      font-style: normal;
-      color: var(--muted);
-    }
-
-    .footer {
-      padding: 20vh 5vw 10vh;
-      text-align: center;
-    }
-
-    .footer h2 {
-      font-family: 'Playfair Display', serif;
-      font-size: clamp(2rem, 5vw, 3.2rem);
-      margin-bottom: 1rem;
-      background: linear-gradient(135deg, #c2185b, #e91e63, #ff4081);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-
-    .footer p {
-      color: var(--muted);
-      font-size: 1.1rem;
-    }
-
-    @media (max-width: 700px) {
-      .photos.two .photo-card,
-      .photos.three .photo-card {
-        width: 100%;
-        max-width: 380px;
-      }
-      .section { padding: 8vh 4vw; }
-      .group { margin-bottom: 12vh; }
-    }
-  </style>
+        .ui-overlay p {
+            margin-top: 5px;
+            font-size: 1rem;
+            opacity: 0.8;
+        }
+    </style>
+    <!-- Подключение Three.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <!-- Подключение OrbitControls для управления камерой -->
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
 </head>
 <body>
 
-  <section class="hero">
-    <h1>Наша история</h1>
-    <p>Моменты, которые хочется пересматривать снова и снова</p>
-    <div class="scroll-hint">листай вниз ↓</div>
-  </section>
-
-  <section class="section">
-    <h2 class="section-title">Самые смешные</h2>
-
-    <div class="group">
-      <div class="photos two">
-        <div class="photo-card"><img src="01%20%281%29.jpg" alt="" loading="lazy"></div>
-        <div class="photo-card"><img src="01%20%283%29.jpg" alt="" loading="lazy"></div>
-      </div>
-      <p class="caption">Когда пытаемся быть серьёзными…<span>и сразу проваливаемся</span></p>
+    <div class="ui-overlay">
+        <h1>3D Галерея</h1>
+        <p>Зажмите левую кнопку мыши для вращения | Колесико для масштабирования</p>
     </div>
 
-    <div class="group">
-      <div class="photos three">
-        <div class="photo-card"><img src="01%20%286%29.jpg" alt="" loading="lazy"></div>
-        <div class="photo-card"><img src="01%20%287%29.jpg" alt="" loading="lazy"></div>
-        <div class="photo-card"><img src="01%20%288%29.jpg" alt="" loading="lazy"></div>
-      </div>
-      <p class="caption">Один и тот же вайб — разные углы<span>язык наружу — наш фирменный стиль</span></p>
-    </div>
+    <div id="canvas-container"></div>
 
-    <div class="group">
-      <div class="photos two">
-        <div class="photo-card"><img src="01%20%2811%29.jpg" alt="" loading="lazy"></div>
-        <div class="photo-card"><img src="01%20%2817%29.jpg" alt="" loading="lazy"></div>
-      </div>
-      <p class="caption">Сердце надули — и сразу счастливые<span>даже если оно чуть больше нас самих</span></p>
-    </div>
+    <script>
+        // 1. Инициализация сцены, камеры и рендерера
+        const scene = new THREE.Scene();
+        scene.fog = new THREE.FogExp2(0x0d0d11, 0.05);
 
-    <div class="group">
-      <div class="photos one">
-        <div class="photo-card"><img src="01%20%2821%29.jpg" alt="" loading="lazy"></div>
-      </div>
-      <p class="caption">Классика жанра: один серьёзный, вторая уже показывает язык</p>
-    </div>
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.set(0, 0, 8);
 
-    <div class="group">
-      <div class="photos three">
-        <div class="photo-card"><img src="01%20%2825%29.jpg" alt="" loading="lazy"></div>
-        <div class="photo-card"><img src="01%20%2818%29.jpg" alt="" loading="lazy"></div>
-        <div class="photo-card"><img src="01%20%2845%29.jpg" alt="" loading="lazy"></div>
-      </div>
-      <p class="caption">Когда смеёмся так, что аж болят щёки<span>эти рожи — чистое золото</span></p>
-    </div>
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(window.devicePixelRatio);
+        document.getElementById('canvas-container').appendChild(renderer.domElement);
 
-    <div class="group">
-      <div class="photos two">
-        <div class="photo-card"><img src="01%20%2827%29.jpg" alt="" loading="lazy"></div>
-        <div class="photo-card"><img src="01%20%2854%29.jpg" alt="" loading="lazy"></div>
-      </div>
-      <p class="caption">Учёба? Нет, просто устроили фотосессию с карандашом</p>
-    </div>
-  </section>
+        // 2. Добавление управления камерой (OrbitControls)
+        const controls = new THREE.OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+        controls.dampingFactor = 0.05;
 
-  <section class="section">
-    <h2 class="section-title">Самые милые</h2>
+        // 3. Освещение
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
+        scene.add(ambientLight);
 
-    <div class="group">
-      <div class="photos two">
-        <div class="photo-card"><img src="01%20%284%29.jpg" alt="" loading="lazy"></div>
-        <div class="photo-card"><img src="01%20%285%29.jpg" alt="" loading="lazy"></div>
-      </div>
-      <p class="caption">Тихие моменты, когда весь мир исчезает<span>просто мы и тишина</span></p>
-    </div>
+        const pointLight = new THREE.PointLight(0x00aaff, 2, 50);
+        pointLight.position.set(0, 5, 5);
+        scene.add(pointLight);
 
-    <div class="group">
-      <div class="photos one">
-        <div class="photo-card"><img src="01%20%289%29.jpg" alt="" loading="lazy"></div>
-      </div>
-      <p class="caption">Твоя улыбка в зеркале — лучший фильтр</p>
-    </div>
+        // 4. Список ссылок на фотографии
+        // Замените эти ссылки на прямые URL ваших фотографий из GitHub (Raw ссылки)
+        const photoUrls = [
+            'https://picsum.photos/id/1015/600/800',
+            'https://picsum.photos/id/1018/600/800',
+            'https://picsum.photos/id/1025/600/800',
+            'https://picsum.photos/id/1039/600/800',
+            'https://picsum.photos/id/1050/600/800',
+            'https://picsum.photos/id/1069/600/800'
+        ];
 
-    <div class="group">
-      <div class="photos three">
-        <div class="photo-card"><img src="01%20%2813%29.jpg" alt="" loading="lazy"></div>
-        <div class="photo-card"><img src="01%20%2814%29.jpg" alt="" loading="lazy"></div>
-        <div class="photo-card"><img src="01%20%2815%29.jpg" alt="" loading="lazy"></div>
-      </div>
-      <p class="caption">Поцелуи в отражении<span>как будто время остановилось</span></p>
-    </div>
+        // 5. Создание группы для карусели с карточками
+        const galleryGroup = new THREE.Group();
+        scene.add(galleryGroup);
 
-    <div class="group">
-      <div class="photos two">
-        <div class="photo-card"><img src="01%20%2816%29.jpg" alt="" loading="lazy"></div>
-        <div class="photo-card"><img src="01%20%2822%29.jpg" alt="" loading="lazy"></div>
-      </div>
-      <p class="caption">Обнимашки у стены — наш любимый ритуал</p>
-    </div>
+        const textureLoader = new THREE.TextureLoader();
+        const radius = 4; // Радиус круга карусели
+        const count = photoUrls.length;
 
-    <div class="group">
-      <div class="photos one">
-        <div class="photo-card"><img src="01%20%2823%29.jpg" alt="" loading="lazy"></div>
-      </div>
-      <p class="caption">Поцелуй в щёку + аттестат = идеальный день</p>
-    </div>
+        photoUrls.forEach((url, index) => {
+            const texture = textureLoader.load(url);
+            const geometry = new THREE.PlaneGeometry(2, 2.8);
+            const material = new THREE.MeshStandardMaterial({
+                map: texture,
+                side: THREE.DoubleSide,
+                roughness: 0.3
+            });
 
-    <div class="group">
-      <div class="photos two">
-        <div class="photo-card"><img src="01%20%2824%29.jpg" alt="" loading="lazy"></div>
-        <div class="photo-card"><img src="01%20%2826%29.jpg" alt="" loading="lazy"></div>
-      </div>
-      <p class="caption">Когда ты на руках — мир становится легче</p>
-    </div>
+            const card = new THREE.Mesh(geometry, material);
 
-    <div class="group">
-      <div class="photos three">
-        <div class="photo-card"><img src="01%20%282%29.jpg" alt="" loading="lazy"></div>
-        <div class="photo-card"><img src="01%20%2810%29.jpg" alt="" loading="lazy"></div>
-        <div class="photo-card"><img src="01%20%2812%29.jpg" alt="" loading="lazy"></div>
-      </div>
-      <p class="caption">Домашние селфи — самые настоящие</p>
-    </div>
-  </section>
+            // Расстановка по кругу
+            const angle = (index / count) * Math.PI * 2;
+            card.position.x = Math.sin(angle) * radius;
+            card.position.z = Math.cos(angle) * radius;
+            
+            // Разворот карточки к центру
+            card.rotation.y = angle;
 
-  <section class="section">
-    <h2 class="section-title">Наши приключения</h2>
+            galleryGroup.add(card);
+        });
 
-    <div class="group">
-      <div class="photos two">
-        <div class="photo-card"><img src="01%20%2819%29.jpg" alt="" loading="lazy"></div>
-        <div class="photo-card"><img src="01%20%2820%29.jpg" alt="" loading="lazy"></div>
-      </div>
-      <p class="caption">Пляж, солнце и ты рядом — большего не нужно</p>
-    </div>
+        // 6. Анимация
+        function animate() {
+            requestAnimationFrame(animate);
 
-    <div class="group">
-      <div class="photos one">
-        <div class="photo-card"><img src="01%20%2830%29.jpg" alt="" loading="lazy"></div>
-      </div>
-      <p class="caption">Осенний лес и рука в волосах</p>
-    </div>
+            // Плавное вращение всей карусели
+            galleryGroup.rotation.y += 0.003;
 
-    <div class="group">
-      <div class="photos two">
-        <div class="photo-card"><img src="01%20%2831%29.jpg" alt="" loading="lazy"></div>
-        <div class="photo-card"><img src="01%20%2832%29.jpg" alt="" loading="lazy"></div>
-      </div>
-      <p class="caption">Прогулки под золотыми листьями<span>и неожиданная встреча с оленёнком</span></p>
-    </div>
-
-    <div class="group">
-      <div class="photos three">
-        <div class="photo-card"><img src="01%20%2838%29.jpg" alt="" loading="lazy"></div>
-        <div class="photo-card"><img src="01%20%2839%29.jpg" alt="" loading="lazy"></div>
-        <div class="photo-card"><img src="01%20%2840%29.jpg" alt="" loading="lazy"></div>
-      </div>
-      <p class="caption">В оранжерее, где всё зелёное и живое</p>
-    </div>
-
-    <div class="group">
-      <div class="photos two">
-        <div class="photo-card"><img src="01%20%2848%29.jpg" alt="" loading="lazy"></div>
-        <div class="photo-card"><img src="01%20%2857%29.jpg" alt="" loading="lazy"></div>
-      </div>
-      <p class="caption">Город на горизонте и утка, которая решила поздороваться</p>
-    </div>
-  </section>
-
-  <section class="section">
-    <h2 class="section-title">Ещё немного нас</h2>
-
-    <div class="group">
-      <div class="photos two">
-        <div class="photo-card"><img src="01%20%2833%29.jpg" alt="" loading="lazy"></div>
-        <div class="photo-card"><img src="01%20%2834%29.jpg" alt="" loading="lazy"></div>
-      </div>
-      <p class="caption">Бильярд и пончики — идеальный вечер</p>
-    </div>
-
-    <div class="group">
-      <div class="photos three">
-        <div class="photo-card"><img src="01%20%2835%29.jpg" alt="" loading="lazy"></div>
-        <div class="photo-card"><img src="01%20%2841%29.jpg" alt="" loading="lazy"></div>
-        <div class="photo-card"><img src="01%20%2842%29.jpg" alt="" loading="lazy"></div>
-      </div>
-      <p class="caption">Твои взгляды — отдельный вид искусства</p>
-    </div>
-
-    <div class="group">
-      <div class="photos two">
-        <div class="photo-card"><img src="01%20%2843%29.jpg" alt="" loading="lazy"></div>
-        <div class="photo-card"><img src="01%20%2844%29.jpg" alt="" loading="lazy"></div>
-      </div>
-      <p class="caption">Улыбка, от которой становится тепло</p>
-    </div>
-
-    <div class="group">
-      <div class="photos one">
-        <div class="photo-card"><img src="01%20%2846%29.jpg" alt="" loading="lazy"></div>
-      </div>
-      <p class="caption">Котик тоже в теме</p>
-    </div>
-
-    <div class="group">
-      <div class="photos two">
-        <div class="photo-card"><img src="01%20%2847%29.jpg" alt="" loading="lazy"></div>
-        <div class="photo-card"><img src="01%20%2849%29.jpg" alt="" loading="lazy"></div>
-      </div>
-      <p class="caption">Нежность в каждом кадре</p>
-    </div>
-
-    <div class="group">
-      <div class="photos three">
-        <div class="photo-card"><img src="01%20%2850%29.jpg" alt="" loading="lazy"></div>
-        <div class="photo-card"><img src="01%20%2851%29.jpg" alt="" loading="lazy"></div>
-        <div class="photo-card"><img src="01%20%2852%29.jpg" alt="" loading="lazy"></div>
-      </div>
-      <p class="caption">Чемпионка с медалями и просто красивая ты</p>
-    </div>
-
-    <div class="group">
-      <div class="photos two">
-        <div class="photo-card"><img src="01%20%2853%29.jpg" alt="" loading="lazy"></div>
-        <div class="photo-card"><img src="01%20%2855%29.jpg" alt="" loading="lazy"></div>
-      </div>
-      <p class="caption">Цветы, розовый и военный шлем — наш стиль</p>
-    </div>
-
-    <div class="group">
-      <div class="photos one">
-        <div class="photo-card"><img src="01%20%2856%29.jpg" alt="" loading="lazy"></div>
-      </div>
-      <p class="caption">Когда ты на плечах — кухня превращается в сцену</p>
-    </div>
-
-    <div class="group">
-      <div class="photos three">
-        <div class="photo-card"><img src="01%20%2858%29.jpg" alt="" loading="lazy"></div>
-        <div class="photo-card"><img src="01%20%2859%29.jpg" alt="" loading="lazy"></div>
-        <div class="photo-card"><img src="01%20%2860%29.jpg" alt="" loading="lazy"></div>
-      </div>
-      <p class="caption">Ещё немного тепла и поцелуев</p>
-    </div>
-
-    <div class="group">
-      <div class="photos two">
-        <div class="photo-card"><img src="01%20%2861%29.jpg" alt="" loading="lazy"></div>
-        <div class="photo-card"><img src="01%20%2862%29.jpg" alt="" loading="lazy"></div>
-      </div>
-      <p class="caption">Закаты, облака и мы</p>
-    </div>
-
-    <div class="group">
-      <div class="photos two">
-        <div class="photo-card"><img src="01%20%2863%29.jpg" alt="" loading="lazy"></div>
-        <div class="photo-card"><img src="01%20%2864%29.jpg" alt="" loading="lazy"></div>
-      </div>
-      <p class="caption">И снова эти тихие, самые любимые моменты</p>
-    </div>
-  </section>
-
-  <section class="footer">
-    <h2>С тобой — лучше всего</h2>
-    <p>Спасибо, что ты есть</p>
-  </section>
-
-  <script>
-    const groups = document.querySelectorAll('.group');
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('visible');
+            controls.update();
+            renderer.render(scene, camera);
         }
-      });
-    }, { threshold: 0.15, rootMargin: '0px 0px -80px 0px' });
-    groups.forEach(g => observer.observe(g));
-  </script>
+
+        animate();
+
+        // 7. Обработка изменения размера окна
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+    </script>
 </body>
 </html>
