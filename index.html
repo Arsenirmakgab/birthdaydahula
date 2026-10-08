@@ -103,10 +103,9 @@
                 if (!response.ok) throw new Error('Ошибка при получении данных от GitHub API');
                 
                 const files = await response.json();
-                
                 const validExtensions = ['.jpg', '.jpeg', '.png', '.webp', '.gif'];
                 
-                // Формируем безопасные URL через CDN jsDelivr с правильной кодировкой пробелов и скобок
+                // Экранируем имена файлов с пробелами и скобками через jsDelivr CDN
                 const photoUrls = files
                     .filter(file => file.type === 'file' && validExtensions.some(ext => file.name.toLowerCase().endsWith(ext)))
                     .map(file => `https://cdn.jsdelivr.net/gh/${USER}/${REPO}@main/${encodeURIComponent(file.name)}`);
@@ -127,11 +126,10 @@
 
         function create3DGallery(urls) {
             const textureLoader = new THREE.TextureLoader();
-            // Разрешаем Cross-Origin загрузку изображений
             textureLoader.setCrossOrigin('anonymous');
 
             const count = urls.length;
-            const radius = Math.max(5, count * 0.45);
+            const radius = Math.max(5, count * 0.35);
 
             urls.forEach((url, index) => {
                 textureLoader.load(
