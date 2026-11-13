@@ -73,14 +73,21 @@
             border-radius: 14px;
             display: block;
             opacity: 0;
-            transition: opacity 0.4s ease;
+            transition: opacity 0.35s ease;
         }
 
         .card img.loaded {
             opacity: 1;
         }
 
-        /* Полноэкранный просмотр по клику */
+        #status-msg {
+            text-align: center;
+            margin-top: 30px;
+            color: #9e3b5c;
+            font-size: 0.95rem;
+            display: none;
+        }
+
         .lightbox {
             position: fixed;
             inset: 0;
@@ -115,6 +122,7 @@
     </header>
 
     <main class="gallery" id="gallery"></main>
+    <div id="status-msg"></div>
 </div>
 
 <div class="lightbox" id="lightbox" onclick="this.classList.remove('open')">
@@ -124,22 +132,30 @@
 <script>
     const USER = 'Arsenirmakgab';
     const REPO = 'birthdaydahula';
-    const TOTAL = 64; // от 01 (1).jpg до 01 (64).jpg
+    const TOTAL = 64;
 
     const gallery = document.getElementById('gallery');
     const lightbox = document.getElementById('lightbox');
     const lightboxImg = document.getElementById('lightboxImg');
+    const statusMsg = document.getElementById('status-msg');
+
+    let loadedAny = false;
+    let failedCount = 0;
 
     for (let i = 1; i <= TOTAL; i++) {
-        const fileName = `01 (${i}).jpg`;
-        const encoded = encodeURIComponent(fileName);
+        const rawName = `01 (${i}).jpg`;
+        const rawNameUpper = `01 (${i}).JPG`;
+        const encName = encodeURIComponent(rawName);
+        const encNameUpper = encodeURIComponent(rawNameUpper);
 
-        // Цепочка запасных ссылок: сначала локально из папки, затем GitHub main/master и CDN
+        // Все возможные пути: локально, GitHub raw (main/master) и jsDelivr
         const sources = [
-            `./${encoded}`,
-            `https://raw.githubusercontent.com/${USER}/${REPO}/main/${encoded}`,
-            `https://raw.githubusercontent.com/${USER}/${REPO}/master/${encoded}`,
-            `https://cdn.jsdelivr.net/gh/${USER}/${REPO}@main/${encoded}`
+            rawName,
+            rawNameUpper,
+            `https://raw.githubusercontent.com/${USER}/${REPO}/main/${encName}`,
+            `https://raw.githubusercontent.com/${USER}/${REPO}/main/${encNameUpper}`,
+            `https://raw.githubusercontent.com/${USER}/${REPO}/master/${encName}`,
+            `https://cdn.jsdelivr.net/gh/${USER}/${REPO}@main/${encName}`
         ];
 
         const card = document.createElement('div');
@@ -153,7 +169,9 @@
         img.src = sources[attempt];
 
         img.onload = () => {
+            loadedAny = true;
             img.classList.add('loaded');
+            statusMsg.style.display = 'none';
         };
 
         img.onerror = () => {
@@ -161,8 +179,12 @@
             if (attempt < sources.length) {
                 img.src = sources[attempt];
             } else {
-                // Если ни одна ссылка не сработала — убираем пустую карточку
                 card.remove();
+                failedCount++;
+                if (!loadedAny && failedCount >= 3) {
+                    statusMsg.style.display = 'block';
+                    statusMsg.innerHTML = `Фотографии пока недоступны. Проверь, что репозиторий <b>${USER}/${REPO}</b> открыт (Public), а файлы лежат в корне рядом с index.html.<br>Проверенный путь: <code>${sources[2]}</code>`;
+                }
             }
         };
 
