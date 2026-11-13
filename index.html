@@ -12,86 +12,146 @@
         }
 
         body {
-            background: linear-gradient(135deg, #ffe6ee 0%, #ffd6e4 100%);
-            color: #4a2535;
+            background: linear-gradient(160deg, #fff0f5 0%, #ffe0ec 50%, #ffd6e6 100%);
+            color: #4a2033;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, sans-serif;
             min-height: 100vh;
-            padding: 40px 20px 80px;
+            padding: 50px 20px 100px;
         }
 
         .container {
-            max-width: 1140px;
+            max-width: 1040px;
             margin: 0 auto;
         }
 
         header {
             text-align: center;
-            margin-bottom: 40px;
+            margin-bottom: 60px;
         }
 
         h1 {
-            font-size: clamp(2rem, 5vw, 3rem);
+            font-size: clamp(2.2rem, 5vw, 3.4rem);
             font-weight: 800;
             color: #d6336c;
-            margin-bottom: 8px;
+            letter-spacing: -0.02em;
+            margin-bottom: 12px;
         }
 
         .subtitle {
-            font-size: 1.05rem;
-            color: #7a495c;
+            font-size: 1.1rem;
+            color: #7d475c;
+            max-width: 520px;
+            margin: 0 auto;
         }
 
-        .gallery {
+        /* Секция из 2-3 фото + подпись */
+        .story-section {
+            background: rgba(255, 255, 255, 0.72);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.9);
+            border-radius: 28px;
+            padding: 26px;
+            margin-bottom: 44px;
+            box-shadow: 0 14px 35px rgba(214, 51, 108, 0.09);
+            transition: transform 0.3s ease;
+        }
+
+        .story-section:hover {
+            transform: translateY(-3px);
+        }
+
+        .photos-row {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-            gap: 20px;
+            gap: 18px;
         }
 
-        .card {
+        .photos-row.cols-2 {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .photos-row.cols-3 {
+            grid-template-columns: repeat(3, 1fr);
+        }
+
+        .photo-box {
             background: #ffffff;
-            border-radius: 20px;
-            padding: 10px;
-            box-shadow: 0 10px 25px rgba(214, 51, 108, 0.12);
-            transition: transform 0.25s ease, box-shadow 0.25s ease;
-            cursor: zoom-in;
-            overflow: hidden;
+            border-radius: 18px;
+            padding: 8px;
+            box-shadow: 0 6px 18px rgba(214, 51, 108, 0.08);
             aspect-ratio: 3 / 4;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            overflow: hidden;
+            cursor: zoom-in;
+            position: relative;
         }
 
-        .card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 16px 35px rgba(214, 51, 108, 0.22);
-        }
-
-        .card img {
+        .photo-box img {
             width: 100%;
             height: 100%;
             object-fit: cover;
-            border-radius: 14px;
+            border-radius: 12px;
             display: block;
             opacity: 0;
-            transition: opacity 0.35s ease;
+            transition: opacity 0.4s ease, transform 0.4s ease;
         }
 
-        .card img.loaded {
+        .photo-box img.loaded {
             opacity: 1;
         }
 
-        #status-msg {
-            text-align: center;
-            margin-top: 30px;
-            color: #9e3b5c;
-            font-size: 0.95rem;
-            display: none;
+        .photo-box:hover img.loaded {
+            transform: scale(1.03);
         }
 
+        .story-caption {
+            text-align: center;
+            margin-top: 22px;
+            padding: 0 12px;
+        }
+
+        .story-caption h2 {
+            font-size: clamp(1.25rem, 2.5vw, 1.65rem);
+            font-weight: 700;
+            color: #c2255c;
+            margin-bottom: 6px;
+        }
+
+        .story-caption p {
+            font-size: 0.98rem;
+            color: #78485b;
+            font-style: italic;
+        }
+
+        /* Адаптив под телефон */
+        @media (max-width: 720px) {
+            .photos-row.cols-3 {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .photos-row.cols-3 .photo-box:last-child {
+                grid-column: span 2;
+                aspect-ratio: 4 / 3;
+            }
+            .story-section {
+                padding: 18px;
+                margin-bottom: 30px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .photos-row.cols-2,
+            .photos-row.cols-3 {
+                grid-template-columns: 1fr;
+            }
+            .photos-row.cols-3 .photo-box:last-child {
+                grid-column: span 1;
+                aspect-ratio: 3 / 4;
+            }
+        }
+
+        /* Полноэкранный просмотр */
         .lightbox {
             position: fixed;
             inset: 0;
-            background: rgba(25, 10, 18, 0.9);
+            background: rgba(25, 10, 18, 0.92);
             backdrop-filter: blur(8px);
             display: none;
             align-items: center;
@@ -111,18 +171,26 @@
             border-radius: 16px;
             box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
         }
+
+        footer {
+            text-align: center;
+            margin-top: 50px;
+            color: #9e5a74;
+            font-size: 0.95rem;
+        }
     </style>
 </head>
 <body>
 
 <div class="container">
     <header>
-        <h1>Наши моменты ❤️</h1>
-        <p class="subtitle">64 любимых кадра</p>
+        <h1>Наша история в кадрах ❤️</h1>
+        <p class="subtitle">Маленькие кусочки дней, которые хочется пересматривать снова и снова</p>
     </header>
 
-    <main class="gallery" id="gallery"></main>
-    <div id="status-msg"></div>
+    <main id="stories"></main>
+
+    <footer>Сделано с любовью ❤️</footer>
 </div>
 
 <div class="lightbox" id="lightbox" onclick="this.classList.remove('open')">
@@ -132,23 +200,141 @@
 <script>
     const USER = 'Arsenirmakgab';
     const REPO = 'birthdaydahula';
-    const TOTAL = 64;
 
-    const gallery = document.getElementById('gallery');
+    // Подборки по 2-3 похожих фото с красивыми подписями (охватывают все 64 файла по порядку)
+    const sections = [
+        {
+            ids: [1, 3, 7],
+            title: "Смешные моменты делить с тобой 😂",
+            text: "Когда можно не строить из себя серьёзных и просто дурачиться вместе"
+        },
+        {
+            ids: [2, 4, 9],
+            title: "Наши любимые кадры в зеркале ✨",
+            text: "Перед выходом, дома и просто в моменте — всегда вдвоём"
+        },
+        {
+            ids: [5, 10],
+            title: "Самые тёплые и уютные вечера 🧸",
+            text: "Когда весь мир подождёт, потому что рядом ты"
+        },
+        {
+            ids: [6, 8],
+            title: "Твоя улыбка — мой любимый вид 🌸",
+            text: "Даже самый обычный день становится особенным"
+        },
+        {
+            ids: [11, 12, 13],
+            title: "Случайные селфи, которые греют душу 📸",
+            text: "Без фильтров и постановки, зато самые настоящие"
+        },
+        {
+            ids: [14, 15, 16],
+            title: "Прогулки и разговоры обо всём 🚶‍♂️🚶‍♀️",
+            text: "С тобой любая дорога кажется слишком короткой"
+        },
+        {
+            ids: [17, 18],
+            title: "На одной волне 🌊",
+            text: "Понимаем друг друга с полуслова и одного взгляда"
+        },
+        {
+            ids: [19, 20, 21],
+            title: "Дни, которые хочется поставить на повтор 🔁",
+            text: "Каждый кадр как маленькая открытка из нашей жизни"
+        },
+        {
+            ids: [22, 23, 24],
+            title: "Немного безумия в обычных буднях 🤪",
+            text: "С тобой невозможно заскучать ни на минуту"
+        },
+        {
+            ids: [25, 26],
+            title: "Просто счастливы рядом 💕",
+            text: "Ничего лишнего — только мы и хорошее настроение"
+        },
+        {
+            ids: [27, 28, 29],
+            title: "Солнечные дни и тёплые воспоминания ☀️",
+            text: "Сохраняю каждую такую минуту в памяти"
+        },
+        {
+            ids: [30, 31, 32],
+            title: "Наши маленькие приключения 🗺️",
+            text: "Неважно куда идти, главное — держать тебя за руку"
+        },
+        {
+            ids: [33, 34],
+            title: "Уют, который мы создаём сами 🏡",
+            text: "Дом там, где ты смеёшься рядом"
+        },
+        {
+            ids: [35, 36, 37],
+            title: "Кадры, от которых сразу становится тепло 🔥",
+            text: "Стоит только открыть галерею — и настроение на максимум"
+        },
+        {
+            ids: [38, 39, 40],
+            title: "Смех до слёз и глупые рожицы 😜",
+            text: "Лучшие воспоминания всегда рождаются спонтанно"
+        },
+        {
+            ids: [41, 42],
+            title: "Мгновения нежности 🤍",
+            text: "Люблю каждый твой взгляд и каждую эмоцию"
+        },
+        {
+            ids: [43, 44, 45],
+            title: "Обычные дни, ставшие особенными ✨",
+            text: "Потому что в них есть ты"
+        },
+        {
+            ids: [46, 47, 48],
+            title: "Наш собственный вайб 🎶",
+            text: "Ни на кого не похожие, но идеально подходящие друг другу"
+        },
+        {
+            ids: [49, 50],
+            title: "Вместе — лучшее место на земле 🌍",
+            text: "Где бы мы ни были, с тобой всегда спокойно и легко"
+        },
+        {
+            ids: [51, 52, 53],
+            title: "Ещё больше поводов улыбнуться 😊",
+            text: "Спасибо за каждый день, проведённый рядом"
+        },
+        {
+            ids: [54, 55, 56],
+            title: "Яркие вспышки нашей истории 💫",
+            text: "Такие моменты не забываются никогда"
+        },
+        {
+            ids: [57, 58],
+            title: "Тепло твоих объятий 🤗",
+            text: "Лучшее лекарство от любой усталости"
+        },
+        {
+            ids: [59, 60, 61],
+            title: "Ловим каждый красивый момент 🌅",
+            text: "Впереди у нас ещё тысячи таких кадров"
+        },
+        {
+            ids: [62, 63, 64],
+            title: "И это только начало нашей истории ❤️",
+            text: "Люблю тебя и каждый наш день"
+        }
+    ];
+
+    const storiesContainer = document.getElementById('stories');
     const lightbox = document.getElementById('lightbox');
     const lightboxImg = document.getElementById('lightboxImg');
-    const statusMsg = document.getElementById('status-msg');
 
-    let loadedAny = false;
-    let failedCount = 0;
-
-    for (let i = 1; i <= TOTAL; i++) {
-        const rawName = `01 (${i}).jpg`;
-        const rawNameUpper = `01 (${i}).JPG`;
+    function createPhotoElement(photoNumber) {
+        const rawName = `01 (${photoNumber}).jpg`;
+        const rawNameUpper = `01 (${photoNumber}).JPG`;
         const encName = encodeURIComponent(rawName);
         const encNameUpper = encodeURIComponent(rawNameUpper);
 
-        // Все возможные пути: локально, GitHub raw (main/master) и jsDelivr
         const sources = [
             rawName,
             rawNameUpper,
@@ -158,20 +344,18 @@
             `https://cdn.jsdelivr.net/gh/${USER}/${REPO}@main/${encName}`
         ];
 
-        const card = document.createElement('div');
-        card.className = 'card';
+        const box = document.createElement('div');
+        box.className = 'photo-box';
 
         const img = document.createElement('img');
         img.loading = 'lazy';
-        img.alt = `Фото ${i}`;
+        img.alt = `Фото ${photoNumber}`;
 
         let attempt = 0;
         img.src = sources[attempt];
 
         img.onload = () => {
-            loadedAny = true;
             img.classList.add('loaded');
-            statusMsg.style.display = 'none';
         };
 
         img.onerror = () => {
@@ -179,25 +363,43 @@
             if (attempt < sources.length) {
                 img.src = sources[attempt];
             } else {
-                card.remove();
-                failedCount++;
-                if (!loadedAny && failedCount >= 3) {
-                    statusMsg.style.display = 'block';
-                    statusMsg.innerHTML = `Фотографии пока недоступны. Проверь, что репозиторий <b>${USER}/${REPO}</b> открыт (Public), а файлы лежат в корне рядом с index.html.<br>Проверенный путь: <code>${sources[2]}</code>`;
-                }
+                box.remove();
             }
         };
 
-        card.onclick = () => {
+        box.onclick = () => {
             if (img.classList.contains('loaded')) {
                 lightboxImg.src = img.src;
                 lightbox.classList.add('open');
             }
         };
 
-        card.appendChild(img);
-        gallery.appendChild(card);
+        box.appendChild(img);
+        return box;
     }
+
+    sections.forEach(sec => {
+        const sectionEl = document.createElement('section');
+        sectionEl.className = 'story-section';
+
+        const rowEl = document.createElement('div');
+        rowEl.className = `photos-row cols-${sec.ids.length === 2 ? '2' : '3'}`;
+
+        sec.ids.forEach(num => {
+            rowEl.appendChild(createPhotoElement(num));
+        });
+
+        const captionEl = document.createElement('div');
+        captionEl.className = 'story-caption';
+        captionEl.innerHTML = `
+            <h2>${sec.title}</h2>
+            <p>${sec.text}</p>
+        `;
+
+        sectionEl.appendChild(rowEl);
+        sectionEl.appendChild(captionEl);
+        storiesContainer.appendChild(sectionEl);
+    });
 
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') lightbox.classList.remove('open');
